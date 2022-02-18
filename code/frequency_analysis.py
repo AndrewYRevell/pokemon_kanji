@@ -371,13 +371,23 @@ def plot_zipf(public_news, slope = -8, intercept = 23, start = 3, stop = None,
 xlim = [-1,25000]
 #%%
 plot_zipf(df_pla, slope = -3, intercept = 6.5, start = 2.5, xlim = xlim , color_data = colors["pla"])
+plt.savefig("plots/fig2_pla.pdf", dpi=600)
+
 plot_zipf(df_sword, slope = -5, intercept = 12.5, start = 2.5, xlim =xlim, color_data = colors["sword"] )
+plt.savefig("plots/fig2_sword.pdf", dpi=600)
 
 
 plot_zipf(public_news, slope = -8, intercept = 23, xlim = xlim, color_data = colors["news"])
+plt.savefig("plots/fig2_news.pdf", dpi=600)
+
+
+
 plot_zipf(public_wikipedia, slope = -6, intercept = 17, stop = 4,  xlim = xlim, color_data = colors["wiki"])
+plt.savefig("plots/fig2_wiki.pdf", dpi=600)
 plot_zipf(public_twitter, slope = -6, intercept = 16.5, start = 2.8,  xlim =xlim , color_data = colors["twitter"])
+plt.savefig("plots/fig2_twitter.pdf", dpi=600)
 plot_zipf(public_aozora, slope = -10, intercept = 32, start = 3.3,  xlim = xlim , color_data = colors["ao"])
+plt.savefig("plots/fig2_ao.pdf", dpi=600)
 
 
 
@@ -768,7 +778,7 @@ pval = len(np.where(cor2-cor1 < 0)[0])/B
 print(f"pvalue: {pval}")
 ymin, ymax = axes.get_ylim()
 xmin, xmax = axes.get_xlim()
-axes.text(s = f"p={(np.round(pval,3))}", x = xmin + (xmax-xmin)*0.05, y = ymax - (ymax-ymin)*0.05, size = 10, va = "top")
+axes.text(s = f"p={(np.round(pval,4))}", x = xmin + (xmax-xmin)*0.05, y = ymax - (ymax-ymin)*0.05, size = 10, va = "top")
 
 plt.savefig("plots/fig3_planews_vs_platwitter.pdf", dpi=600)
 #fig, axes = plot_make(r=1, c=1, size_length=None, size_height=None, dpi=300, sharex=False, sharey=False, squeeze=True)
@@ -803,7 +813,7 @@ ymin, ymax = axes.get_ylim()
 xmin, xmax = axes.get_xlim()
 axes.text(s = f"p={(np.round(pval,3))}", x = xmin + (xmax-xmin)*0.05, y = ymax - (ymax-ymin)*0.05, size = 10, va = "top")
 
-plt.savefig("plots/fig3_plawiki_vs_platwitter.pdf", dpi=600)
+plt.savefig("plots/fig3_plz\awiki_vs_platwitter.pdf", dpi=600)
 
 #%%
 
@@ -873,6 +883,29 @@ plt.savefig("plots/fig3_plawiki_vs_plaao.pdf", dpi=600)
 
 
 
+#%%
+
+
+
+
+# =============================================================================
+#
+# =============================================================================
+# =============================================================================
+#
+# =============================================================================
+# =============================================================================
+#
+# =============================================================================
+# =============================================================================
+#
+# =============================================================================
+# =============================================================================
+#
+# =============================================================================
+# =============================================================================
+#
+# =============================================================================
 
 
 
@@ -881,6 +914,164 @@ plt.savefig("plots/fig3_plawiki_vs_plaao.pdf", dpi=600)
 
 
 
+
+
+
+B = 10000
+cor1 = np.zeros( shape = (B))
+cor2 = np.zeros( shape = (B))
+
+for i in range(B):
+    print(f"\r{i+1}/{B}; {np.round((i+1)/B*100,1)}", end = "\r")
+    samples = random.choices(range(n) , k= n)
+    np.array(samples)
+    df_sample = df_ranks.iloc[samples]
+
+    cor1[i] = scipy.stats.spearmanr(df_sample["rank_sword"], df_sample["rank_news"])[0]
+    cor2[i] = scipy.stats.spearmanr(df_sample["rank_sword"], df_sample["rank_twitter"])[0]
+
+#%%
+fig, axes = plot_make(r=1, c=1, size_length=3, size_height=None, dpi=300, sharex=False, sharey=False, squeeze=True)
+sns.histplot(cor1, ax = axes,  kde = True, edgecolor=None, color = colors_mixer[5], binrange = [0.4, 0.68], binwidth = 0.01 , line_kws = dict(lw = 3))
+sns.histplot(cor2, ax = axes,  kde = True, edgecolor=None, color = colors_mixer[7], binrange = [0.4, 0.68], binwidth = 0.01, line_kws = dict(lw = 3))
+axes.axvline(np.mean(cor1), color= colors_mixer[5], ls = "--")
+axes.axvline(np.mean(cor2), color= colors_mixer[7], ls = "--")
+
+axes.spines['right'].set_visible(False)
+axes.spines['top'].set_visible(False)
+pval = len(np.where(cor2-cor1 < 0)[0])/B
+print(f"pvalue: {pval}")
+ymin, ymax = axes.get_ylim()
+xmin, xmax = axes.get_xlim()
+axes.text(s = f"p={(np.round(pval,4))}", x = xmin + (xmax-xmin)*0.05, y = ymax - (ymax-ymin)*0.05, size = 10, va = "top")
+
+plt.savefig("plots/fig3_swordnews_vs_swordtwitter.pdf", dpi=600)
+#fig, axes = plot_make(r=1, c=1, size_length=None, size_height=None, dpi=300, sharex=False, sharey=False, squeeze=True)
+#sns.histplot(cor2-cor1, ax = axes)
+#%%
+
+B = 10000
+cor1 = np.zeros( shape = (B))
+cor2 = np.zeros( shape = (B))
+
+for i in range(B):
+    print(f"\r{i+1}/{B}; {np.round((i+1)/B*100,1)}", end = "\r")
+    samples = random.choices(range(n) , k= n)
+    np.array(samples)
+    df_sample = df_ranks.iloc[samples]
+
+    cor1[i] = scipy.stats.spearmanr(df_sample["rank_sword"], df_sample["rank_wikipedia"])[0]
+    cor2[i] = scipy.stats.spearmanr(df_sample["rank_sword"], df_sample["rank_twitter"])[0]
+
+#%%
+fig, axes = plot_make(r=1, c=1, size_length=3, size_height=None, dpi=300, sharex=False, sharey=False, squeeze=True)
+sns.histplot(cor1, ax = axes,  kde = True, edgecolor=None, color = colors_mixer[6], binrange = [0.4, 0.68], binwidth = 0.01 , line_kws = dict(lw = 3))
+sns.histplot(cor2, ax = axes,  kde = True, edgecolor=None, color = colors_mixer[7], binrange = [0.4, 0.68], binwidth = 0.01, line_kws = dict(lw = 3))
+axes.axvline(np.mean(cor1), color= colors_mixer[6], ls = "--")
+axes.axvline(np.mean(cor2), color= colors_mixer[7], ls = "--")
+
+axes.spines['right'].set_visible(False)
+axes.spines['top'].set_visible(False)
+pval = len(np.where(cor2-cor1 < 0)[0])/B
+print(f"pvalue: {pval}")
+ymin, ymax = axes.get_ylim()
+xmin, xmax = axes.get_xlim()
+axes.text(s = f"p={(np.round(pval,3))}", x = xmin + (xmax-xmin)*0.05, y = ymax - (ymax-ymin)*0.05, size = 10, va = "top")
+
+plt.savefig("plots/fig3_swordwiki_vs_swordtwitter.pdf", dpi=600)
+
+#%%
+
+B = 10000
+cor1 = np.zeros( shape = (B))
+cor2 = np.zeros( shape = (B))
+
+for i in range(B):
+    print(f"\r{i+1}/{B}; {np.round((i+1)/B*100,1)}", end = "\r")
+    samples = random.choices(range(n) , k= n)
+    np.array(samples)
+    df_sample = df_ranks.iloc[samples]
+
+    cor1[i] = scipy.stats.spearmanr(df_sample["rank_sword"], df_sample["rank_news"])[0]
+    cor2[i] = scipy.stats.spearmanr(df_sample["rank_sword"], df_sample["rank_aozora"])[0]
+
+
+#%%
+fig, axes = plot_make(r=1, c=1, size_length=3, size_height=None, dpi=300, sharex=False, sharey=False, squeeze=True)
+sns.histplot(cor1, ax = axes,  kde = True, edgecolor=None, color = colors_mixer[5], binrange = [0.4, 0.6], binwidth = 0.01 , line_kws = dict(lw = 3))
+sns.histplot(cor2, ax = axes,  kde = True, edgecolor=None, color = colors_mixer[8], binrange = [0.4, 0.6], binwidth = 0.01, line_kws = dict(lw = 3))
+axes.axvline(np.mean(cor1), color= colors_mixer[5], ls = "--")
+axes.axvline(np.mean(cor2), color= colors_mixer[8], ls = "--")
+
+axes.spines['right'].set_visible(False)
+axes.spines['top'].set_visible(False)
+pval = len(np.where(cor2-cor1 < 0)[0])/B
+print(f"pvalue: {pval}")
+ymin, ymax = axes.get_ylim()
+xmin, xmax = axes.get_xlim()
+axes.text(s = f"p={(np.round(pval,3))}", x = xmin + (xmax-xmin)*0.05, y = ymax - (ymax-ymin)*0.05, size = 10, va = "top")
+
+plt.savefig("plots/fig3_swordnews_vs_swordao.pdf", dpi=600)
+
+
+# %%
+
+B = 10000
+cor1 = np.zeros( shape = (B))
+cor2 = np.zeros( shape = (B))
+
+for i in range(B):
+    print(f"\r{i+1}/{B}; {np.round((i+1)/B*100,1)}", end = "\r")
+    samples = random.choices(range(n) , k= n)
+    np.array(samples)
+    df_sample = df_ranks.iloc[samples]
+
+    cor1[i] = scipy.stats.spearmanr(df_sample["rank_sword"], df_sample["rank_wikipedia"])[0]
+    cor2[i] = scipy.stats.spearmanr(df_sample["rank_sword"], df_sample["rank_aozora"])[0]
+
+#%%
+fig, axes = plot_make(r=1, c=1, size_length=3, size_height=None, dpi=300, sharex=False, sharey=False, squeeze=True)
+sns.histplot(cor1, ax = axes,  kde = True, edgecolor=None, color = colors_mixer[6], binrange = [0.4, 0.6], binwidth = 0.01 , line_kws = dict(lw = 3))
+sns.histplot(cor2, ax = axes,  kde = True, edgecolor=None, color = colors_mixer[8], binrange = [0.4, 0.6], binwidth = 0.01, line_kws = dict(lw = 3))
+axes.axvline(np.mean(cor1), color= colors_mixer[6], ls = "--")
+axes.axvline(np.mean(cor2), color= colors_mixer[8], ls = "--")
+
+axes.spines['right'].set_visible(False)
+axes.spines['top'].set_visible(False)
+pval = len(np.where(cor2-cor1 < 0)[0])/B
+print(f"pvalue: {pval}")
+ymin, ymax = axes.get_ylim()
+xmin, xmax = axes.get_xlim()
+axes.text(s = f"p={(np.round(pval,3))}", x = xmin + (xmax-xmin)*0.05, y = ymax - (ymax-ymin)*0.05, size = 10, va = "top")
+
+plt.savefig("plots/fig3_plawiki_vs_plaao.pdf", dpi=600)
+
+
+
+
+
+
+
+
+
+# =============================================================================
+#
+# =============================================================================
+# =============================================================================
+#
+# =============================================================================
+# =============================================================================
+#
+# =============================================================================
+# =============================================================================
+#
+# =============================================================================
+# =============================================================================
+#
+# =============================================================================
+# =============================================================================
+#
+# =============================================================================
 
 
 # %%
