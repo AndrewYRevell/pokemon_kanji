@@ -1064,7 +1064,7 @@ for i in range(6):
         change_rank =np.abs(df_merged[c1] -  df_merged[c2])
         mean_change_rank = np.nanmedian(change_rank)
 
-        largest_change = -np.sort(-change_rank )[0:5]
+        largest_change = -np.sort(-change_rank )[0:10]
         for c in range(len(largest_change)):
             ind = np.where(change_rank == largest_change[c])[0][0]
             df_merged.loc[ind]
@@ -1092,14 +1092,14 @@ import matplotlib
 matplotlib.font_manager.findSystemFonts(fontpaths=None, fontext="ttf")
 plt.rcParams["font.family"] = "Aozora Mincho"
 
-fig,axes = plot_make(r = 2, c = 5, size_height=4 )
+fig,axes = plot_make(r = 5, c = 3, size_height=12, size_length=12 )
 
 i = 0
 axes = axes.flatten()
 y1_init = 1
 y1 = copy.deepcopy(y1_init)
-height = 0.15
-for c in range(50):
+height = 0.1
+for c in range(len(changes)):
     character = changes["kanji"][c][0]
     rank1 = changes["rank1"][c]
     rank2 = changes["rank2"][c]
@@ -1107,14 +1107,14 @@ for c in range(50):
 
     title = f"{changes['first'][c]} to {changes['second'][c]}"
 
-    kanji  = Kanji.request( character)
-    meaning = kanji.data.main_meanings[0]
+    meaning = changes["meaning"][c]
+    if meaning == "second (1/60 minute)": meaning = "second (time)"
     string_text = f"{character}"
     string_text_mean = f"{meaning}"
     string_text_num = f"{rank1} --> {rank2} ({rank_change})"
     axes[i].text(s =string_text, x = 0, y =y1, va = "top", ha = "left")
     axes[i].text(s =string_text_mean, x = 0.15, y = y1, va = "top", ha = "left")
-    axes[i].text(s =string_text_num, x = 0.8, y = y1, va = "top", ha = "left")
+    axes[i].text(s =string_text_num, x = 0.9, y = y1, va = "top", ha = "left")
 
     y1 = y1-height
     axes[i].spines['right'].set_visible(False)
@@ -1123,12 +1123,93 @@ for c in range(50):
     axes[i].spines['bottom'].set_visible(False)
     axes[i].get_xaxis().set_visible(False)
     axes[i].get_yaxis().set_visible(False)
-    axes[i].set_xlim([0,2])
+    axes[i].set_xlim([0,1.6])
     #axes[i].set_ylim([0.6,1])
-    if (c+1)%5  == 0 and c > 0:
-        axes[i].text(s =title, x = 0, y =y1_init+height, va = "top", ha = "left")
+    if (c+1)%10  == 0 and c > 0:
+        axes[i].text(s = title, x = 0, y =y1_init+height, va = "top", ha = "left")
         i = i +1
         y1=1
+
+plt.savefig("plots/kanji_most_changed.pdf", dpi=600)
+
+
+# %%
+#plot most frequent kanji
+
+#get top 10 meanings
+top10 = []
+for i in range(6):
+    top10_dict = pd.DataFrame(columns = ["kanji", "meaning", "freq"])
+    for c in range(10):
+
+        rows = dfs[i]
+        character = rows["kanji"][c]
+        if i <2: f = 4
+        else: f = 3
+        frequency = rows.iloc[c, f]
+        kanji  = Kanji.request( character)
+        meaning = kanji.data.main_meanings[0]
+
+        top10_dict = top10_dict.append(dict(kanji = character, meaning= meaning, freq= frequency), ignore_index = True)
+    top10.append(top10_dict)
+
+
+# %%
+
+
+
+dfs
+fig,axes = plot_make(r = 6, c = 1, size_height=7, size_length=4 )
+axes = axes.flatten()
+y1_init = 1
+y1 = copy.deepcopy(y1_init)
+height = 0.2
+
+for i in range(6):
+    x1,x2,x3,x4, x_delta = 0, 0.02, 0.10, 0.37, 0.8
+    for c in range(10):
+
+        rows = top10[i]
+        character = rows["kanji"][c]
+        frequency = int(np.round(rows["freq"][c],5)*1000)/10
+        meaning = rows["meaning"][c]
+
+        string_rank = f"{c+1}."
+        string_text = f"{character}"
+        string_text_mean = f"{meaning}"
+        string_text_num = f"({frequency}%)"
+
+        axes[i].text(s =string_rank, x = x1, y =y1, va = "top", ha = "right")
+        axes[i].text(s =string_text, x = x2, y =y1, va = "top", ha = "left")
+        axes[i].text(s =string_text_mean, x = x3, y = y1, va = "top", ha = "left")
+        axes[i].text(s =string_text_num, x = x4, y = y1, va = "top", ha = "left")
+
+        y1 = y1-height
+
+        if (c+1)  % 5 == 0 and c > 0:
+            x1 = x1+x_delta
+            x2 = x2+x_delta
+            x3 = x3+x_delta
+            x4 = x4+x_delta
+            y1 = y1_init
+    axes[i].spines['right'].set_visible(False)
+    axes[i].spines['top'].set_visible(False)
+    axes[i].spines['left'].set_visible(False)
+    axes[i].spines['bottom'].set_visible(False)
+    axes[i].get_xaxis().set_visible(False)
+    axes[i].get_yaxis().set_visible(False)
+
+    
+    
+    
+
+
+
+
+
+
+
+
 #%%
 # =============================================================================
 #
