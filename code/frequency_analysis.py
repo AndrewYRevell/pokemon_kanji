@@ -336,9 +336,9 @@ public_wikipedia["relative_to_max"] = public_wikipedia["frequency"] / np.max(pub
 
 def plot_zipf(public_news, slope = -8, intercept = 23, start = 3, stop = None,
               color_data = "#6666aa" , color_line1 = "#111111bb", color_line2 = "#33333399",
-              ls1 = "-", ls2 = "--",size = 30, xlim = None , lw = 3):
+              ls1 = "-", ls2 = "--",size = 50, xlim = None , lw = 6):
     
-    fig, axes = plot_make(size_length = 10)
+    fig, axes = plot_make(size_length = 10, size_height=4  )
     x1 = np.array(range(len(public_news)))+1
     y1 = 1/x1
     y2 = 1/(x1**0.5)
@@ -500,13 +500,13 @@ scipy.stats.spearmanr(df_merged["rank_wikipedia"],df_merged["rank_news"])[0]
 df_ranks = df_merged[['rank_pla','rank_sword','rank_news', 'rank_wikipedia', 'rank_twitter', "rank_aozora"]]
 #%%
 #Fig 3 summary
-i,j = 0,1
+i,j = 1,2
 fig, axes = plot_make()
 c1 = df_ranks.columns[i]
 c2 = df_ranks.columns[j]
 
 sns.lineplot(x = [0,1600], y = [0,1600],  ax = axes, color = "#33333399", ls = "--", lw = 6)
-sns.regplot( data = df_merged, x = c1, ax = axes, y = c2,scatter_kws=dict( edgecolor = None, s = 5), color =  colors_mixer[0], ci = None, line_kws=dict(lw=6))
+sns.regplot( data = df_merged, x = c1, ax = axes, y = c2,scatter_kws=dict( edgecolor = None, s = 5), color =  colors_mixer[5], ci = None, line_kws=dict(lw=6))
 
 
 axes.spines['right'].set_visible(False)
@@ -566,34 +566,6 @@ for i in range(6):
 
 plt.savefig("plots/fig3_allcorr.pdf", dpi=600)
 # %%
-#Find the largest change in ranks
-changes = pd.DataFrame(columns = ["first", "second", "kanji", "rank1", "rank2", "change"])
-for i in range(6):
-    for j in range(6):
-        if i == j or i>j:
-            continue
-        c1 = df_ranks.columns[i]
-        c2 = df_ranks.columns[j]
-        change_rank =np.abs(df_merged[c1] -  df_merged[c2])
-        mean_change_rank = np.nanmedian(change_rank)
-
-        largest_change = -np.sort(-change_rank )[0:5]
-        for c in range(len(largest_change)):
-            ind = np.where(change_rank == largest_change[c])[0][0]
-            df_merged.loc[ind]
-            which_one = df_merged[ ["kanji", c1, c2] ].loc[ind]
-            changes = changes.append(dict( first = c1 , second = c2, kanji =
-                                          which_one["kanji"], rank1 = which_one[c1],
-                                          rank2 = which_one[c2],
-                                          change = which_one[c2] -  which_one[c1]),
-                                     ignore_index=True)
-
-
-        np.abs(df_merged[c1] -  df_merged[c2])
-        print(f"{c1}, {c2}, {np.round(mean_change_rank,1)}")
-
-        mean_change_rank = np.nanmedian(np.abs(df_merged[c1] -  df_merged[c2]))
-
 
 
 
@@ -665,7 +637,7 @@ for i in range(6):
             axes[i][j].set_ylim([0,290])
 
         if i >j:
-            total = 100
+            total = 100 #how many kanji are randomly selected to plot (cant plot everyone cuase thats too busy)
             samples = random.choices(range(len(df_merged)) , k= total)
             for s in range(len(samples)):
                 p = samples[s]
@@ -673,13 +645,13 @@ for i in range(6):
                 y2 =  df_merged[c2][p]+1
                 switch_rank_cutoff = 300
                 if y1 > y2+switch_rank_cutoff:
-                    col = "#aa333333" #red
+                    col = "#2a2a8c55" #blue
                 elif y2 > y1+switch_rank_cutoff:
-                    col = "#3333aa33" #blue
+                    col = "#8c2a2a55" #red
                 else:
                     col = "#33333322"
                 print(f"\r{s}/{total}, {np.round((s+1)/total*100, 2)}  ", end = "\r")
-                sns.lineplot(  x = [0,1], y =[y1,y2  ], ax = axes[i][j],lw = 2, color = col )
+                sns.lineplot(  x = [0,1], y =[y1,y2  ], ax = axes[i][j],lw = 3, color = col )
 
             #axes[i][j].set_xlim([-3,2100])
             axes[i][j].set_ylim(axes[i][j].get_ylim()[::-1])
@@ -689,11 +661,12 @@ for i in range(6):
         axes[i][j].set_xlabel("")
         axes[i][j].set_ylabel("")
 
+        axes[i][j].tick_params(axis='both', which='major', labelsize=14)
 
 
 
 
-
+plt.savefig("plots/rank_changes_all.pdf", dpi=600)
 
 
 
@@ -813,7 +786,7 @@ ymin, ymax = axes.get_ylim()
 xmin, xmax = axes.get_xlim()
 axes.text(s = f"p={(np.round(pval,3))}", x = xmin + (xmax-xmin)*0.05, y = ymax - (ymax-ymin)*0.05, size = 10, va = "top")
 
-plt.savefig("plots/fig3_plz\awiki_vs_platwitter.pdf", dpi=600)
+plt.savefig("plots/fig3_plawiki_vs_platwitter.pdf", dpi=600)
 
 #%%
 
@@ -1044,7 +1017,7 @@ ymin, ymax = axes.get_ylim()
 xmin, xmax = axes.get_xlim()
 axes.text(s = f"p={(np.round(pval,3))}", x = xmin + (xmax-xmin)*0.05, y = ymax - (ymax-ymin)*0.05, size = 10, va = "top")
 
-plt.savefig("plots/fig3_plawiki_vs_plaao.pdf", dpi=600)
+plt.savefig("plots/fig3_swordwiki_vs_swordao.pdf", dpi=600)
 
 
 
@@ -1075,6 +1048,114 @@ plt.savefig("plots/fig3_plawiki_vs_plaao.pdf", dpi=600)
 
 
 # %%
+
+
+from jisho_api.kanji import Kanji
+
+
+#Find the largest change in ranks
+changes = pd.DataFrame(columns = ["first", "second", "kanji", "rank1", "rank2", "change", "meaning"])
+for i in range(6):
+    for j in range(6):
+        if i == j or i>j:
+            continue
+        c1 = df_ranks.columns[i]
+        c2 = df_ranks.columns[j]
+        change_rank =np.abs(df_merged[c1] -  df_merged[c2])
+        mean_change_rank = np.nanmedian(change_rank)
+
+        largest_change = -np.sort(-change_rank )[0:5]
+        for c in range(len(largest_change)):
+            ind = np.where(change_rank == largest_change[c])[0][0]
+            df_merged.loc[ind]
+            which_one = df_merged[ ["kanji", c1, c2] ].loc[ind]
+
+            kanji  = Kanji.request( which_one["kanji"])
+            meaning = kanji.data.main_meanings[0]
+
+            changes = changes.append(dict( first = c1 , second = c2, kanji =
+                                          which_one["kanji"], rank1 = which_one[c1],
+                                          rank2 = which_one[c2],
+                                          change = which_one[c2] -  which_one[c1],
+                                          meaning = meaning),
+                                     ignore_index=True)
+
+
+        np.abs(df_merged[c1] -  df_merged[c2])
+        print(f"{c1}, {c2}, {np.round(mean_change_rank,1)}")
+        mean_change_rank = np.nanmedian(np.abs(df_merged[c1] -  df_merged[c2]))
+
+
+# %%
+#plot largest changes
+import matplotlib
+matplotlib.font_manager.findSystemFonts(fontpaths=None, fontext="ttf")
+plt.rcParams["font.family"] = "Aozora Mincho"
+
+fig,axes = plot_make(r = 2, c = 5, size_height=4 )
+
+i = 0
+axes = axes.flatten()
+y1_init = 1
+y1 = copy.deepcopy(y1_init)
+height = 0.15
+for c in range(50):
+    character = changes["kanji"][c][0]
+    rank1 = changes["rank1"][c]
+    rank2 = changes["rank2"][c]
+    rank_change = -changes["change"][c]
+
+    title = f"{changes['first'][c]} to {changes['second'][c]}"
+
+    kanji  = Kanji.request( character)
+    meaning = kanji.data.main_meanings[0]
+    string_text = f"{character}"
+    string_text_mean = f"{meaning}"
+    string_text_num = f"{rank1} --> {rank2} ({rank_change})"
+    axes[i].text(s =string_text, x = 0, y =y1, va = "top", ha = "left")
+    axes[i].text(s =string_text_mean, x = 0.15, y = y1, va = "top", ha = "left")
+    axes[i].text(s =string_text_num, x = 0.8, y = y1, va = "top", ha = "left")
+
+    y1 = y1-height
+    axes[i].spines['right'].set_visible(False)
+    axes[i].spines['top'].set_visible(False)
+    axes[i].spines['left'].set_visible(False)
+    axes[i].spines['bottom'].set_visible(False)
+    axes[i].get_xaxis().set_visible(False)
+    axes[i].get_yaxis().set_visible(False)
+    axes[i].set_xlim([0,2])
+    #axes[i].set_ylim([0.6,1])
+    if (c+1)%5  == 0 and c > 0:
+        axes[i].text(s =title, x = 0, y =y1_init+height, va = "top", ha = "left")
+        i = i +1
+        y1=1
+#%%
+# =============================================================================
+#
+# =============================================================================
+# =============================================================================
+#
+# =============================================================================
+# =============================================================================
+#
+# =============================================================================
+# =============================================================================
+#
+# =============================================================================
+# =============================================================================
+#
+# =============================================================================
+# =============================================================================
+#
+# =============================================================================
+
+
+
+
+
+
+
+
 
 
 # %%
