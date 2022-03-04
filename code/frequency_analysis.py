@@ -1201,7 +1201,7 @@ for i in range(6):
 
     
     
-    
+plt.savefig("plots/kanji_most_frequent.pdf", dpi=600)
 
 
 
